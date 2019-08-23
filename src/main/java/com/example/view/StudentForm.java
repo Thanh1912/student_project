@@ -173,6 +173,7 @@ public class StudentForm {
                 userCourseTableModel1.refresh();
             }
         });
+
         btn_change_pass.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

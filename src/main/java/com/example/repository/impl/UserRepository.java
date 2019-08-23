@@ -44,10 +44,10 @@ public class UserRepository extends AbstractRepository<Long, UserEntity> impleme
             sql.append(" and fullname LIKE '%" + query.getFullname() + "%'");
         }
         if (query.getClassId() != null && query.getClassId() >= 0) {
-            sql.append(" and classId = " + query.getClassId() + " ");
+            sql.append(" and classId ='" + query.getClassId() + "'");
         }
         if (query.getCodeCourse() != null && query.getCodeCourse().length() >= 0) {
-            sql.append(" and course.code = " + query.getCodeCourse() + " ");
+            sql.append(" and course.code ='" + query.getCodeCourse() + "'");
         }
 //        sql.append(" limit " + (pageRequest.getPage() - 1) * pageRequest.getLimit() + ", " + pageRequest.getLimit());
 
@@ -82,10 +82,10 @@ public class UserRepository extends AbstractRepository<Long, UserEntity> impleme
             sql.append(" and fullname LIKE '%" + query.getFullname() + "%'");
         }
         if (query.getClassId() != null && query.getClassId() >= 0) {
-            sql.append(" and classId = " + query.getClassId() + " ");
+            sql.append(" and classId ='" + query.getClassId() + "'");
         }
         if (query.getCodeCourse() != null && query.getCodeCourse().length() >= 0) {
-            sql.append(" and course.code = " + query.getCodeCourse() + " ");
+            sql.append(" and course.code ='" + query.getCodeCourse() + "'");
         }
 //        sql.append(" limit " + (pageRequest.getPage() - 1) * pageRequest.getLimit() + ", " + pageRequest.getLimit());
 
