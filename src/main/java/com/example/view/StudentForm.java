@@ -1,8 +1,6 @@
 package com.example.view;
 
 import com.example.constant.SystemConstant;
-import com.example.converter.CourseConverter;
-import com.example.converter.UserConverter;
 import com.example.data.model.CoursetableModel;
 import com.example.data.model.UserCourseTableModel;
 import com.example.dto.*;
@@ -10,10 +8,8 @@ import com.example.entity.UserCourseEntity;
 import com.example.paging.PageRequest;
 import com.example.paging.SearchResult;
 import com.example.repository.IClassesRepository;
-import com.example.repository.IUserCourseRepository;
 import com.example.repository.impl.ClassRepository;
 import com.example.repository.impl.CourseRepository;
-import com.example.repository.impl.UserCourseRepository;
 import com.example.service.impl.ClassesService;
 import com.example.service.impl.CourseService;
 import com.example.service.impl.UserService;
@@ -75,9 +71,6 @@ public class StudentForm {
     }
 
     public void FormHandle() {
-        IUserCourseRepository userCourseRepository = new UserCourseRepository();
-        UserConverter userConverter = new UserConverter();
-        CourseConverter courseConverter = new CourseConverter();
         List<String> listDK = Arrays.asList(SystemConstant.STATUS_COURSE);
         listDK.stream().forEach(item -> {
             cb_dk.addItem(item);
@@ -139,7 +132,7 @@ public class StudentForm {
                 UserCourseTableModel userTableModel = (UserCourseTableModel) table_dk_monhoc.getModel();
                 if (userTableModel.getUserCourseSelected() != null && coursetableModel1.getCoursesSelected() != null) {
                     txt_name_mh.setText(coursetableModel1.getCoursesSelected().getName() + " - " + coursetableModel1.getCoursesSelected().getCode());
-                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getId(), coursetableModel1.getCoursesSelected().getId());
+                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
                     if (userCourseEntity != null) {
                         cb_dk.setSelectedItem(userCourseEntity.getStatus());
                         point_center.setText(checkNull(userCourseEntity.getPointHk()));
@@ -204,10 +197,6 @@ public class StudentForm {
         if (txt_code != null && txt_code.getText().length() > 0) {
             query.setCode(txt_code.getText());
         }
-       /* UserDTO userDTO = UICommonUtils.getAccount(frame);
-        if (userDTO != null) {
-            query.setUserId(userDTO.getId());
-        }*/
         if (cboxClassesMHSearch != null && cboxClassesMHSearch.getSelectedItem() != null && cboxClassesMHSearch.getSelectedItem().toString().length() > 0) {
             query.setClassName(cboxClassesMHSearch.getSelectedItem().toString());
         }

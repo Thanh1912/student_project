@@ -36,7 +36,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class HomeAdmin {
     private JPanel homeAdmin;
@@ -111,6 +113,7 @@ public class HomeAdmin {
     private JPanel ql_sv;
     private JPanel import_sv;
     private JTextField txt_mamh;
+    private JButton btn_tk;
     private JFrame frame;
     private List<UserDTO> users;
     private List<ClassesDTO> classes;
@@ -595,7 +598,7 @@ public class HomeAdmin {
                             if (classesEntities != null && classesEntities.size() > 0) {
                                 classId = classesEntities.get(0).getId();
                                 Long courseId = courses.get(0).getId();
-                                List<Object> userCourseEntity = userCourseRepository.findByClassIdAndCourseId(classId,courseId);
+                                List<Object> userCourseEntity = userCourseRepository.findByClassIdAndCourseId(classId, courseId);
                                 for (int i = 1; i < lines.size(); i++) {
                                     for (int j = 0; j < userCourseEntity.size(); j++) {
                                         Object[] objects = (Object[]) userCourseEntity.get(i);
@@ -669,7 +672,6 @@ public class HomeAdmin {
         });
 
 
-
     }
 
     public String checkNull(Object str) {
@@ -726,10 +728,10 @@ public class HomeAdmin {
                 coursetableModel1.setCourseSelected(courseDTO);
                 table_mh.setModel(coursetableModel1);
 
-                UserTableModel userTableModel = (UserTableModel) table_dk_monhoc.getModel();
-                if (userTableModel.getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
+                UserCourseTableModel userTableModel = (UserCourseTableModel) table_dk_monhoc.getModel();
+                if (userTableModel.getUserCourseSelected() != null && coursetableModel1.getCoursesSelected() != null) {
                     txt_name_mh.setText(coursetableModel1.getCoursesSelected().getName() + " - " + coursetableModel1.getCoursesSelected().getCode());
-                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
+                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
                     if (userCourseEntity != null) {
                         cb_dk.setSelectedItem(userCourseEntity.getStatus());
                         point_center.setText(checkNull(userCourseEntity.getPointHk()));
@@ -805,19 +807,24 @@ public class HomeAdmin {
                 CourseDTO courseDTO = coursetableModel1.getList().get(index);
                 coursetableModel1.setCourseSelected(courseDTO);
                 table_mh.setModel(coursetableModel1);
-                UserTableModel userTableModel = (UserTableModel) table_dk_monhoc.getModel();
-                if (userTableModel.getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
+                UserCourseTableModel userTableModel = (UserCourseTableModel) table_dk_monhoc.getModel();
+                if (userTableModel.getUserCourseSelected().getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
                     try {
-                        UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
+                        UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
                         if (userCourseEntity == null) {
                             userCourseEntity = new UserCourseEntity();
-                            userCourseEntity.setUserEntity(userConverter.convertToEntity(userTableModel.getUserDTO()));
+                            userCourseEntity.setUserEntity(userConverter.convertToEntity(userTableModel.getUserCourseSelected().getUserDTO()));
                             userCourseEntity.setCourseEntity(courseConverter.convertToEntity(coursetableModel1.getCoursesSelected()));
                             userCourseRepository.save(userCourseEntity);
                         } else {
                             userCourseEntity.setStatus(cb_dk.getSelectedItem().toString());
                             IUserCourseRepository userCourseRepository = new UserCourseRepository();
-                            userCourseRepository.save((UserCourseEntity) userCourseRepository);
+                            UserCourseEntity updated = userCourseRepository.update(userCourseEntity);
+                            if (updated != null) {
+                                JOptionPane.showMessageDialog(frame, "Cap nhat thanh cong ");
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "Khong the cap nhat");
+                            }
                         }
                     } catch (Exception err) {
                         JOptionPane.showMessageDialog(frame, "ERR " + err.getMessage());
