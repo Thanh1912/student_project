@@ -21,8 +21,8 @@ public class UserCourseRepository extends AbstractRepository<Long, UserCourseEnt
     }
 
     @Override
-    public List<UserCourseEntity> findByClassIdAndCourseId(Long classId, Long courseId) {
-        StringBuilder sql = new StringBuilder("from user_course as user_course");
+    public List<Object> findByClassIdAndCourseId(Long classId, Long courseId) {
+        StringBuilder sql = new StringBuilder("select * from user_course as user_course");
         sql.append(" INNER JOIN user as user ");
         sql.append(" where user_course.userid = user.id");
         sql.append(" and user_course.courseid = " + courseId + "");
@@ -30,19 +30,16 @@ public class UserCourseRepository extends AbstractRepository<Long, UserCourseEnt
 
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction transaction = session.beginTransaction();
-        List<UserCourseEntity> result = new ArrayList<>();
         try {
             System.out.println("Search query : " + sql.toString());
             Query bquery = session.createSQLQuery(sql.toString());
-            result =  (List<UserCourseEntity>)  bquery.list();
-            transaction.commit();
+            return  (List<Object>)  bquery.list();
         } catch (HibernateException e) {
             transaction.rollback();
             e.printStackTrace();
-            throw e;
+            return null;
         } finally {
             session.close();
         }
-        return result;
     }
 }

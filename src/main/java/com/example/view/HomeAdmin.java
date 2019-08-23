@@ -595,15 +595,15 @@ public class HomeAdmin {
                             if (classesEntities != null && classesEntities.size() > 0) {
                                 classId = classesEntities.get(0).getId();
                                 Long courseId = courses.get(0).getId();
-                                List<UserCourseEntity> userCourseEntity = userCourseRepository.findByClassIdAndCourseId(classId,courseId);
+                                List<Object> userCourseEntity = userCourseRepository.findByClassIdAndCourseId(classId,courseId);
                                 for (int i = 1; i < lines.size(); i++) {
                                     for (int j = 0; j < userCourseEntity.size(); j++) {
-                                        UserCourseEntity userCourseEntity1 = userCourseEntity.get(j);
+                                        Object[] objects = (Object[]) userCourseEntity.get(i);
                                         String line = Arrays.toString(lines.get(i));
                                         line = line.substring(1, line.length() - 1);
                                         String[] listColumnInLine = line.split("-");
                                         if (listColumnInLine.length >= 6) {
-                                            if (userCourseEntity1.getUserEntity().getMssv().equals(listColumnInLine[0])) {
+                                          /*  if (userCourseEntity1.getUserEntity().getMssv().equals(listColumnInLine[0])) {
                                                 Double point_center1 = Double.parseDouble(listColumnInLine[2]);
                                                 Double point_end1 = Double.parseDouble(listColumnInLine[3]);
                                                 Double point_another1 = Double.parseDouble(listColumnInLine[4]);
@@ -614,7 +614,7 @@ public class HomeAdmin {
                                                 userCourseEntity1.setPointHkAnother(point_another1);
                                                 userCourseEntity1.setPoint(point_tb);
                                                 userCourseEntities.add(userCourseEntity1);
-                                            }
+                                            }*/
                                         }
                                     }
                                 }
@@ -634,6 +634,42 @@ public class HomeAdmin {
                 }
             }
         });
+
+        addButtonBangDiem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CourseConverter courseConverter = new CourseConverter();
+                UserConverter userConverter = new UserConverter();
+                UserCourseImportTableModel userCourseImportTableModel = (UserCourseImportTableModel) tableTKB.getModel();
+                List<UserCourseEntity> userCourseEntities = userCourseImportTableModel.getList();
+                List<CourseEntity> courseEntities = new ArrayList<>();
+                List<String> statusInsert = new ArrayList<>();
+                userCourseEntities.forEach(item -> {
+                    UserCourseEntity userCourseEntity = userCourseRepository.update(item);
+                    if (userCourseEntity != null) {
+                        statusInsert.add("inserted MSSV: " + item.getUserEntity().getMssv());
+                    } else {
+                        statusInsert.add("Fail inserted MSSV: " + item.getUserEntity().getMssv());
+                    }
+                });
+               /* if (classId > 0 && courseEntities.size() > 0) {
+                    List<UserEntity> userEntities = userRepository.findByProperty("classId", classId);
+                    for (int i = 0; i < userEntities.size(); i++) {
+                        UserEntity userEntity = userEntities.get(i);
+                        UserCourseEntity userCourseEntity = new UserCourseEntity();
+                        courseEntities.forEach(course -> {
+                            userCourseEntity.setCourseEntity(course);
+                            userCourseEntity.setUserEntity(userEntity);
+                            userRepository.update(userEntity);
+                        });
+                    }
+                }*/
+                JOptionPane.showMessageDialog(frame, String.join(" \\n ", statusInsert));
+            }
+        });
+
+
+
     }
 
     public String checkNull(Object str) {

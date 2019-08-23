@@ -5,7 +5,6 @@ import com.example.converter.CourseConverter;
 import com.example.converter.UserConverter;
 import com.example.data.model.CoursetableModel;
 import com.example.data.model.UserCourseTableModel;
-import com.example.data.model.UserTableModel;
 import com.example.dto.*;
 import com.example.entity.UserCourseEntity;
 import com.example.paging.PageRequest;
@@ -50,6 +49,7 @@ public class StudentForm {
     private JComboBox cboxClassesMHSearch;
     private JTable table_mh;
     private JButton btn_change_pass;
+    private JTextField txt_code;
     private JFrame frame;
     private List<ClassesDTO> classes;
     private IClassesRepository iClassesRepository = new ClassRepository();
@@ -200,6 +200,9 @@ public class StudentForm {
         SearchCourse query = new SearchCourse();
         if (txt_text_mh != null && txt_text_mh.getText().length() > 0) {
             query.setName(txt_text_mh.getText());
+        }
+        if (txt_code != null && txt_code.getText().length() > 0) {
+            query.setCode(txt_code.getText());
         }
        /* UserDTO userDTO = UICommonUtils.getAccount(frame);
         if (userDTO != null) {
