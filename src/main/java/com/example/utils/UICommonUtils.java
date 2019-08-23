@@ -25,14 +25,29 @@ public class UICommonUtils {
 
     }
 
-    public static void LoadAccount(JLabel welcomeNameLabel) {
+    public static UserDTO getAccount(Frame frame) {
+        try {
+            return (UserDTO) Session.userInfo;
+        }catch (Exception e){
+          frame.dispose();
+          frame.setVisible(false);
+          new Login();
+        }
+        return null;
+    }
+    public static void LoadAccount(JLabel welcomeNameLabel, Frame frame) {
       try {
           UserDTO user = (UserDTO) Session.userInfo;
           welcomeNameLabel.setText(user.getUsername());
       }catch (Exception e){
-          System.out.println(e.getMessage());
+          /*frame.dispose();
+          frame.setVisible(false);
+          new Login();*/
       }
     }
+
+
+
 
     public static void logOutSystem(JFrame frame) {
         if (Session.userInfo != null) {

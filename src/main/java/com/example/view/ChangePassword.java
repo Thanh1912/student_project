@@ -31,7 +31,7 @@ public class ChangePassword {
         frame.setLocationByPlatform(true);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setVisible(true);
-        UICommonUtils.LoadAccount(welcomeNameLabel);
+        UICommonUtils.LoadAccount(welcomeNameLabel, frame);
         exitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 UICommonUtils.logOutSystem(frame);

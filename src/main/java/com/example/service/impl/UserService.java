@@ -5,6 +5,7 @@ import com.example.converter.RoleConverter;
 import com.example.converter.UserConverter;
 import com.example.dto.RoleDTO;
 import com.example.dto.SearchUser;
+import com.example.dto.UserCourseDTO;
 import com.example.dto.UserDTO;
 import com.example.entity.UserEntity;
 import com.example.entity.RoleEntity;
@@ -15,6 +16,7 @@ import com.example.repository.IUserRepository;
 import com.example.repository.impl.RoleRepository;
 import com.example.repository.impl.UserRepository;
 import com.example.service.IUserService;
+import com.example.utils.StringUtils;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -84,7 +86,7 @@ public class UserService implements IUserService {
         UserEntity userModel = userConverter.convertToEntity(userDTO);
         userModel.setModifiedDate(Timestamp.from(new Date().toInstant()));
         userModel.setCreatedDate(Timestamp.from(new Date().toInstant()));
-        UserEntity userInserted = userRepository.save(userModel);
+        UserEntity userInserted = userRepository.update(userModel);
         if (userInserted != null) {
             return userConverter.convertToDto(userInserted);
         }
@@ -99,6 +101,45 @@ public class UserService implements IUserService {
         res.setLastPage(resultSearch.isLastPage());
         List<UserEntity> productModels = resultSearch.getResults();
         res.setResults(productModels.stream().map(item -> userConverter.convertToDto(item)).collect(Collectors.toList()));
+        return res;
+    }
+
+    public Long getLong(Object o){
+        return new Long(o.toString());
+    }
+    public SearchResult<UserCourseDTO> searchAll(SearchUser query, PageRequest pageRequest) {
+        SearchResult<UserCourseDTO> res = new SearchResult<>();
+        List<Object> resultSearch = userRepository.searchAll(query, pageRequest);
+        List<UserCourseDTO> userCourseDTOS = new ArrayList<>();
+        resultSearch.forEach(item -> {
+            Object[] objects = (Object[]) item;
+            UserCourseDTO userCourseDTO =new UserCourseDTO();
+            UserDTO userDTO = new UserDTO();
+           try{
+               userDTO.setId(new Long(objects[0].toString()));
+               userDTO.setUsername((String)StringUtils.checkNull(objects[1]));
+               userDTO.setFullname((String)StringUtils.checkNull(objects[2]));
+               userDTO.setCardId((String)StringUtils.checkNull(objects[3]));
+               userDTO.setMssv((String) StringUtils.checkNull(objects[4]));
+               userDTO.setSex((String)objects[5]);
+               userDTO.setClassId(new Long(objects[6].toString()));
+               userCourseDTO.setUserDTO(userDTO);
+               userCourseDTO.setId(getLong(objects[7]));
+               userCourseDTO.setCourseid(getLong(objects[8]));
+               userCourseDTO.setUserid(getLong( objects[9]));
+               userCourseDTO.setPointHk((Double) objects[10]);
+               userCourseDTO.setPointHkEnd((Double) objects[11]);
+               userCourseDTO.setPointHkAnother((Double) objects[12]);
+               userCourseDTO.setPointHkAnother((Double) objects[13]);
+               userCourseDTO.setStatus((String) objects[14]);
+               userCourseDTO.setStatusPoint((String) objects[15]);
+               if(userDTO.getId()!=null)
+               userCourseDTOS.add(userCourseDTO);
+           }catch (Exception e){
+
+           }
+        });
+        res.setResults(userCourseDTOS);
         return res;
     }
 

@@ -30,8 +30,8 @@ public class CourseEntity implements Serializable {
 	@Column(name = "room")
 	private String room;
 	
-	@ManyToMany(fetch = FetchType.EAGER, mappedBy = "courses")
-	private List<UserEntity> users;
+/*	@ManyToMany(fetch = FetchType.EAGER, mappedBy = "courses")
+	private List<UserEntity> users;*/
 
 	public String getCode() {
 		return code;
@@ -49,13 +49,13 @@ public class CourseEntity implements Serializable {
 		this.name = name;
 	}
 
-	public List<UserEntity> getUsers() {
+/*	public List<UserEntity> getUsers() {
 		return users;
 	}
 
 	public void setUsers(List<UserEntity> users) {
 		this.users = users;
-	}
+	}*/
 	
 	public Long getId() {
 		return id;

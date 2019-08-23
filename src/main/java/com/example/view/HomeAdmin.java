@@ -3,20 +3,20 @@ package com.example.view;
 import com.example.constant.SystemConstant;
 import com.example.converter.CourseConverter;
 import com.example.converter.UserConverter;
-import com.example.data.model.ClassesTableModel;
-import com.example.data.model.CoursetableModel;
-import com.example.data.model.UserTableImportModel;
-import com.example.data.model.UserTableModel;
+import com.example.data.model.*;
 import com.example.dto.*;
 import com.example.entity.ClassesEntity;
 import com.example.entity.CourseEntity;
+import com.example.entity.UserCourseEntity;
 import com.example.entity.UserEntity;
 import com.example.paging.PageRequest;
 import com.example.paging.SearchResult;
 import com.example.repository.IClassesRepository;
 import com.example.repository.ICourseRepository;
+import com.example.repository.IUserCourseRepository;
 import com.example.repository.impl.ClassRepository;
 import com.example.repository.impl.CourseRepository;
+import com.example.repository.impl.UserCourseRepository;
 import com.example.repository.impl.UserRepository;
 import com.example.service.impl.ClassesService;
 import com.example.service.impl.CourseService;
@@ -36,9 +36,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class HomeAdmin {
     private JPanel homeAdmin;
@@ -72,7 +70,7 @@ public class HomeAdmin {
     private JTextField FieldName;
     private JTextField FieldMSSV;
     private JTextField FieldCMND;
-    private JTextField FieldCategoryName;
+    private JTextField Field_Txt_ClassName;
     private JComboBox comboBoxClassEdit;
     private JButton btn_product_edit;
     private JPanel searchPanel;
@@ -92,6 +90,27 @@ public class HomeAdmin {
     private JButton chooseFileBtnBangDiem;
     private JButton addButtonBangDiem;
     private JButton btn_load_tkb;
+    private JTable table_dk_monhoc;
+    private JComboBox cboxClassesSearch;
+    private JButton btn_tk_dkmh;
+    private JTextField txt_dk_mssv;
+    private JTextField txt_dk_fullname;
+    private JComboBox cb_dk;
+    private JButton btn_update_dkmh;
+    private JTable table_mh;
+    private JTextField txt_maMon_hoc;
+    private JTextField txt_name_mh;
+    private JButton btn_tk_mh;
+    private JTextField point_center;
+    private JTextField point_end;
+    private JTextField point_another;
+    private JButton btn_update_point;
+    private JLabel lb_class;
+    private JLabel lb_mh;
+    private JComboBox cboxClassesMHSearch;
+    private JPanel ql_sv;
+    private JPanel import_sv;
+    private JTextField txt_mamh;
     private JFrame frame;
     private List<UserDTO> users;
     private List<ClassesDTO> classes;
@@ -99,6 +118,8 @@ public class HomeAdmin {
     private Long classId = new Long(0);
     private List<UserDTO> listUsers;
     private UserService userService = new UserService();
+    private CourseRepository courseRepository = new CourseRepository();
+    private CourseService courseService = new CourseService(courseRepository);
     private IClassesRepository iClassesRepository = new ClassRepository();
     private UserRepository userRepository = new UserRepository();
     private ClassesService classesService = new ClassesService(iClassesRepository);
@@ -114,7 +135,7 @@ public class HomeAdmin {
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationByPlatform(true);
         frame.setVisible(true);
-        UICommonUtils.LoadAccount(welcomeNameLabel);
+        UICommonUtils.LoadAccount(welcomeNameLabel, frame);
 
         // init data and bean service
         this.classes = classesService.findAll();
@@ -126,6 +147,8 @@ public class HomeAdmin {
             comboBoxClassEdit.addItem(item.getName());
             comboBoxClassesSearch.addItem(item.getName());
             IClass.addItem(item.getName());
+            cboxClassesSearch.addItem(item.getName());
+            cboxClassesMHSearch.addItem(item.getName());
         });
 
         List<String> listSex = Arrays.asList(SystemConstant.STATUS_SEX);
@@ -160,6 +183,13 @@ public class HomeAdmin {
                         comboBoxClassEdit.setSelectedItem(item.getName());
                     }
                 });
+            }
+        });
+
+        import_sv.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("CLIDESDF IMOSDFS");
             }
         });
 
@@ -343,6 +373,7 @@ public class HomeAdmin {
 
         TabClass();
         TabImport();
+        TabDKMH();
         exitButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 UICommonUtils.logOutSystem(frame);
@@ -379,14 +410,15 @@ public class HomeAdmin {
     public void TabClass() {
         List<ClassesDTO> classesDTOList = classesService.findAll();
         ClassesTableModel classesTableModel = new ClassesTableModel(classesDTOList);
+        classesTableModel.setListClass(classesDTOList);
         tableClasses.setModel(classesTableModel);
         tableClasses.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int index = tableClasses.getSelectedRow();
-                ClassesDTO category = classesDTOList.get(index);
-                classesTableModel.setClassesSelected(category);
-                FieldClassesName.setText(category.getName());
+                ClassesDTO classesDTO = classesDTOList.get(index);
+                classesTableModel.setClassesSelected(classesDTO);
+                Field_Txt_ClassName.setText(classesDTO.getName());
             }
         });
 
@@ -395,11 +427,11 @@ public class HomeAdmin {
             public void actionPerformed(ActionEvent e) {
                 ClassesTableModel tableModel = (ClassesTableModel) tableClasses.getModel();
                 ClassesDTO categoryDTO = tableModel.getClassesSelected();
-                categoryDTO.setName(FieldClassesName.getText());
+                categoryDTO.setName(Field_Txt_ClassName.getText());
                 ClassesDTO updated = classesService.save(categoryDTO);
                 if (updated != null) {
                     message.setText("Cập nhật thành công");
-                    tableModel.setCategories(classesService.findAll());
+                    tableModel.setListClass(classesService.findAll());
                     tableModel.refresh();
                 } else {
                     message.setText("Cập nhật thất bại");
@@ -412,12 +444,12 @@ public class HomeAdmin {
             public void actionPerformed(ActionEvent e) {
                 ClassesTableModel tableModel = (ClassesTableModel) tableClasses.getModel();
                 ClassesDTO categoryDTO = new ClassesDTO();
-                categoryDTO.setName(FieldClassesName.getText());
+                categoryDTO.setName(Field_Txt_ClassName.getText());
                 categoryDTO.setModifiedDate(getCurrentTimeStamp());
                 ClassesDTO inserted = classesService.save(categoryDTO);
                 if (inserted != null) {
                     message.setText("Thêm thành công");
-                    tableModel.setCategories(classesService.findAll());
+                    tableModel.setListClass(classesService.findAll());
                     tableModel.refresh();
                 } else {
                     message.setText("Thêm thất bại");
@@ -429,9 +461,7 @@ public class HomeAdmin {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ClassesTableModel tableModel = (ClassesTableModel) tableClasses.getModel();
-                ClassesDTO categoryDTO = new ClassesDTO();
-                categoryDTO.setName(FieldClassesName.getText());
-                categoryDTO.setModifiedDate(getCurrentTimeStamp());
+                ClassesDTO categoryDTO = tableModel.getClassesSelected();
                 boolean deleted = classesService.delete(categoryDTO.getId());
                 if (deleted) {
                     message.setText("Xoa thành công");
@@ -439,7 +469,7 @@ public class HomeAdmin {
                 } else {
                     message.setText("Xoa thất bại");
                 }
-                tableModel.setCategories(classesService.findAll());
+                tableModel.setListClass(classesService.findAll());
                 tableModel.refresh();
             }
         });
@@ -464,25 +494,27 @@ public class HomeAdmin {
                 UserConverter userConverter = new UserConverter();
                 CoursetableModel tableModel = (CoursetableModel) tableTKB.getModel();
                 List<CourseDTO> courseDTOS = tableModel.getList();
-                List<CourseEntity> courseE = new ArrayList<>();
+                List<CourseEntity> courseEntities = new ArrayList<>();
                 List<String> statusInsert = new ArrayList<>();
                 courseDTOS.forEach(item -> {
                     CourseDTO courseDTO = courseService.save(item);
                     if (courseDTO != null) {
-                        courseE.add(courseRepository.findOneByProperty("code", courseDTO.getCode()));
+                        courseEntities.add(courseRepository.findOneByProperty("code", courseDTO.getCode()));
                         statusInsert.add("inserted: " + item.getCode());
                     } else {
                         statusInsert.add("Fail inserted: " + item.getCode());
                     }
                 });
-                if (classId > 0 && courseE.size() > 0) {
+                if (classId > 0 && courseEntities.size() > 0) {
                     List<UserEntity> userEntities = userRepository.findByProperty("classId", classId);
                     for (int i = 0; i < userEntities.size(); i++) {
                         UserEntity userEntity = userEntities.get(i);
-                        List<CourseEntity> courses = userEntity.getCourses();
-                        courses.addAll(courseE);
-                        userEntity.setCourses(courses);
-                        userRepository.update(userEntity);
+                        UserCourseEntity userCourseEntity = new UserCourseEntity();
+                        courseEntities.forEach(course -> {
+                            userCourseEntity.setCourseEntity(course);
+                            userCourseEntity.setUserEntity(userEntity);
+                            userRepository.update(userEntity);
+                        });
                     }
                 }
                 JOptionPane.showMessageDialog(frame, String.join(" \\n ", statusInsert));
@@ -535,6 +567,8 @@ public class HomeAdmin {
                 }
             }
         });
+        IUserCourseRepository userCourseRepository = new UserCourseRepository();
+
         chooseFileBtnBangDiem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -548,30 +582,50 @@ public class HomeAdmin {
                     try {
                         reader = new CSVReader(new FileReader(selectedFile.getAbsolutePath()));
                         List<String[]> lines = reader.readAll();
-                        List<CourseDTO> courseDTOS = new ArrayList<>();
+                        List<UserCourseEntity> userCourseEntities = new ArrayList<>();
                         String line1 = Arrays.toString(lines.get(0));
                         line1 = line1.substring(1, line1.length() - 1);
-                        List<ClassesEntity> classesEntities = iClassesRepository.findByProperty("name", line1);
+                        String[] split = line1.split("-");
+                        if (split.length >= 2) {
+                            lb_class.setText(split[0]);
+                            lb_mh.setText(split[1]);
+                            List<ClassesEntity> classesEntities = iClassesRepository.findByProperty("name", split[0]); // name lop
+                            List<CourseEntity> courses = courseRepository.findByProperty("code", split[1]); // ma mon hoc
 
-                        if (classesEntities != null && classesEntities.size() > 0) {
-                            classId = classesEntities.get(0).getId();
-                            for (int i = 1; i < lines.size(); i++) {
-                                CourseDTO courseDTO = new CourseDTO();
-                                String line = Arrays.toString(lines.get(i));
-                                line = line.substring(1, line.length() - 1);
-                                String[] listColumnInLine = line.split("-");
-                                if (listColumnInLine.length >= 3) {
-                                    courseDTO.setCode(listColumnInLine[0]);
-                                    courseDTO.setName(listColumnInLine[1]);
-                                    courseDTO.setRoom(listColumnInLine[2]);
-                                    courseDTOS.add(courseDTO);
+                            if (classesEntities != null && classesEntities.size() > 0) {
+                                classId = classesEntities.get(0).getId();
+                                Long courseId = courses.get(0).getId();
+                                List<UserCourseEntity> userCourseEntity = userCourseRepository.findByClassIdAndCourseId(classId,courseId);
+                                for (int i = 1; i < lines.size(); i++) {
+                                    for (int j = 0; j < userCourseEntity.size(); j++) {
+                                        UserCourseEntity userCourseEntity1 = userCourseEntity.get(j);
+                                        String line = Arrays.toString(lines.get(i));
+                                        line = line.substring(1, line.length() - 1);
+                                        String[] listColumnInLine = line.split("-");
+                                        if (listColumnInLine.length >= 6) {
+                                            if (userCourseEntity1.getUserEntity().getMssv().equals(listColumnInLine[0])) {
+                                                Double point_center1 = Double.parseDouble(listColumnInLine[2]);
+                                                Double point_end1 = Double.parseDouble(listColumnInLine[3]);
+                                                Double point_another1 = Double.parseDouble(listColumnInLine[4]);
+                                                Double point_tb = Double.parseDouble(listColumnInLine[5]);
+
+                                                userCourseEntity1.setPointHk(point_center1);
+                                                userCourseEntity1.setPointHkEnd(point_end1);
+                                                userCourseEntity1.setPointHkAnother(point_another1);
+                                                userCourseEntity1.setPoint(point_tb);
+                                                userCourseEntities.add(userCourseEntity1);
+                                            }
+                                        }
+                                    }
                                 }
+                                UserCourseImportTableModel coursetableModel = new UserCourseImportTableModel(userCourseEntities);
+                                tableBangDiem.setModel(coursetableModel);
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "Khong tim thay lop " + line1);
                             }
-                            CoursetableModel coursetableModel = new CoursetableModel(courseDTOS);
-                            tableTKB.setModel(coursetableModel);
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "Khong tim thay lop " + line1);
                         }
+
+
                     } catch (FileNotFoundException ex) {
                         ex.printStackTrace();
                     } catch (IOException ex) {
@@ -582,85 +636,214 @@ public class HomeAdmin {
         });
     }
 
+    public String checkNull(Object str) {
+        return str != null ? str.toString() : "";
+    }
 
-    public void TabImport2() {
-        ICourseRepository courseRepository = new CourseRepository();
-        CourseService courseService = new CourseService(courseRepository);
-        btn_load_tkb.addActionListener(new ActionListener() {
+    public void TabDKMH() {
+        IUserCourseRepository userCourseRepository = new UserCourseRepository();
+        UserConverter userConverter = new UserConverter();
+        CourseConverter courseConverter = new CourseConverter();
+        List<String> listDK = Arrays.asList(SystemConstant.STATUS_COURSE);
+        listDK.stream().forEach(item -> {
+            cb_dk.addItem(item);
+        });
+        List<UserCourseDTO> courseUserDTOS = searchUsersAll();
+        UserCourseTableModel userCourseTableModel = new UserCourseTableModel(courseUserDTOS);
+        table_dk_monhoc.setModel(userCourseTableModel);
+        table_dk_monhoc.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                CoursetableModel coursetableModel = new CoursetableModel(courseService.findAll());
-                tableTKB.setModel(coursetableModel);
+            public void mouseClicked(MouseEvent e) {
+                int index = table_dk_monhoc.getSelectedRow();
+                UserCourseTableModel userTableModel = (UserCourseTableModel) table_dk_monhoc.getModel();
+                UserCourseDTO userDTO = userTableModel.getList().get(index);
+                userTableModel.setUserCourseSelected(userDTO);
+                table_dk_monhoc.setModel(userTableModel);
+                txt_dk_fullname.setText(userDTO.getUserDTO().getFullname());
+                txt_dk_mssv.setText(userDTO.getUserDTO().getMssv());
+                CoursetableModel coursetableModel1 = (CoursetableModel) table_mh.getModel();
+                if (userTableModel.getUserCourseSelected() != null && coursetableModel1.getCoursesSelected() != null) {
+                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getId(), coursetableModel1.getCoursesSelected().getId());
+                    if (userCourseEntity != null) {
+                        cb_dk.setSelectedItem(userCourseEntity.getStatus());
+                        point_center.setText(checkNull(userCourseEntity.getPointHk()));
+                        point_end.setText(checkNull(userCourseEntity.getPointHkEnd()));
+                        point_another.setText(checkNull(userCourseEntity.getPointHk()));
+                    } else {
+                        cb_dk.setSelectedItem("");
+                    }
+                } else {
+                    cb_dk.setSelectedItem("");
+                }
             }
         });
-        chooseFileBtnBangDiem.addActionListener(new ActionListener() {
+
+        List<CourseDTO> courseDTOS = searchCourse();
+        CoursetableModel coursetableModel = new CoursetableModel(courseDTOS);
+        table_mh.setModel(coursetableModel);
+        table_mh.addMouseListener(new MouseAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                CoursetableModel tableModel = (CoursetableModel) tableTKB.getModel();
-                List<CourseDTO> users = tableModel.getList();
-                List<String> statusInsert = new ArrayList<>();
-                users.forEach(item -> {
-                    CourseDTO courseDTO = courseService.save(item);
-                    if (courseDTO != null)
-                        statusInsert.add("inserted: " + item.getCode());
-                    else
-                        statusInsert.add("Fail inserted: " + item.getCode());
-                });
-                JOptionPane.showMessageDialog(frame, String.join(" \\n ", statusInsert));
+            public void mouseClicked(MouseEvent e) {
+                CoursetableModel coursetableModel1 = (CoursetableModel) table_mh.getModel();
+                int index = table_mh.getSelectedRow();
+                CourseDTO courseDTO = coursetableModel1.getList().get(index);
+                coursetableModel1.setCourseSelected(courseDTO);
+                table_mh.setModel(coursetableModel1);
+
+                UserTableModel userTableModel = (UserTableModel) table_dk_monhoc.getModel();
+                if (userTableModel.getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
+                    txt_name_mh.setText(coursetableModel1.getCoursesSelected().getName() + " - " + coursetableModel1.getCoursesSelected().getCode());
+                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
+                    if (userCourseEntity != null) {
+                        cb_dk.setSelectedItem(userCourseEntity.getStatus());
+                        point_center.setText(checkNull(userCourseEntity.getPointHk()));
+                        point_end.setText(checkNull(userCourseEntity.getPointHkEnd()));
+                        point_another.setText(checkNull(userCourseEntity.getPointHk()));
+                    } else {
+                        cb_dk.setSelectedItem("");
+                    }
+                } else {
+                    cb_dk.setSelectedItem("");
+                }
             }
         });
 
-
-        buttonImportTKB.addActionListener(new ActionListener() {
+        btn_tk_mh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
-                int returnValue = jfc.showOpenDialog(null);
+                List<CourseDTO> courseDTOS1 = searchCourse();
+                CoursetableModel tableModel = (CoursetableModel) table_dk_monhoc.getModel();
+                tableModel.setCourses(courseDTOS1);
+                tableModel.refresh();
+            }
+        });
 
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = jfc.getSelectedFile();
-                    System.out.println(selectedFile.getAbsolutePath());
-                    CSVReader reader = null;
+        btn_tk_dkmh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                List<CourseDTO> userDTOS = searchCourse();
+                CoursetableModel userTableModel = (CoursetableModel) table_mh.getModel();
+                userTableModel.setCourses(userDTOS);
+                userTableModel.refresh();
+            }
+        });
+
+        btn_update_point.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CoursetableModel coursetableModel1 = (CoursetableModel) table_mh.getModel();
+                int index = table_mh.getSelectedRow();
+                CourseDTO courseDTO = coursetableModel1.getList().get(index);
+                coursetableModel1.setCourseSelected(courseDTO);
+                table_mh.setModel(coursetableModel1);
+
+                UserTableModel userTableModel = (UserTableModel) table_dk_monhoc.getModel();
+                if (userTableModel.getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
                     try {
-                        reader = new CSVReader(new FileReader(selectedFile.getAbsolutePath()));
-                        List<String[]> lines = reader.readAll();
-                        List<CourseDTO> courseDTOS = new ArrayList<>();
-                        String line1 = Arrays.toString(lines.get(0));
-                        line1 = line1.substring(1, line1.length() - 1);
-                        List<ClassesEntity> classesEntities = iClassesRepository.findByProperty("name", line1);
-
-                        if (classesEntities != null && classesEntities.size() > 0) {
-                            List<UserEntity> userEntities = userRepository.findByProperty("classId", classesEntities.get(0).getId());
-                            for (int i = 1; i < lines.size(); i++) {
-                                // insert mon hoc vao database sau do dang ky cho tat ca sinh vien
-                                CourseDTO courseDTO = new CourseDTO();
-                                String line = Arrays.toString(lines.get(i));
-                                line = line.substring(1, line.length() - 1);
-                                String[] listColumnInLine = line.split("-");
-                                if (listColumnInLine.length >= 4) {
-                                    courseDTO.setCode(listColumnInLine[0]);
-                                    courseDTO.setName(listColumnInLine[1]);
-                                    courseDTO.setRoom(listColumnInLine[2]);
-                                    courseDTOS.add(courseDTO);
-                                } else {
-                                    JOptionPane.showMessageDialog(frame, "Format file sai" + line1);
-                                }
-                            }
-                            CoursetableModel coursetableModel = new CoursetableModel(courseDTOS);
-                            tableTKB.setModel(coursetableModel);
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "Khong tim thay lop " + line1);
+                        UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
+                        Double point_center1 = Double.parseDouble(point_center.getText());
+                        Double point_end1 = Double.parseDouble(point_end.getText());
+                        Double point_another1 = Double.parseDouble(point_another.getText());
+                        Double total = (point_center1 + point_end1 + point_another1) / 3;
+                        userCourseEntity.setStatusPoint("ROT");
+                        if (total >= 5) {
+                            userCourseEntity.setStatusPoint("DAU");
                         }
-                    } catch (FileNotFoundException ex) {
-                        ex.printStackTrace();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                        userCourseEntity.setPointHk(point_center1);
+                        userCourseEntity.setPointHkEnd(point_end1);
+                        userCourseEntity.setPointHkAnother(point_another1);
+                        userCourseRepository.update(userCourseEntity);
+                    } catch (Exception err) {
+                        JOptionPane.showMessageDialog(frame, "ERR " + err.getMessage());
+                    }
+
+                }
+            }
+        });
+
+        btn_update_dkmh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CoursetableModel coursetableModel1 = (CoursetableModel) table_mh.getModel();
+                int index = table_mh.getSelectedRow();
+                CourseDTO courseDTO = coursetableModel1.getList().get(index);
+                coursetableModel1.setCourseSelected(courseDTO);
+                table_mh.setModel(coursetableModel1);
+                UserTableModel userTableModel = (UserTableModel) table_dk_monhoc.getModel();
+                if (userTableModel.getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
+                    try {
+                        UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
+                        if (userCourseEntity == null) {
+                            userCourseEntity = new UserCourseEntity();
+                            userCourseEntity.setUserEntity(userConverter.convertToEntity(userTableModel.getUserDTO()));
+                            userCourseEntity.setCourseEntity(courseConverter.convertToEntity(coursetableModel1.getCoursesSelected()));
+                            userCourseRepository.save(userCourseEntity);
+                        } else {
+                            userCourseEntity.setStatus(cb_dk.getSelectedItem().toString());
+                            IUserCourseRepository userCourseRepository = new UserCourseRepository();
+                            userCourseRepository.save((UserCourseEntity) userCourseRepository);
+                        }
+                    } catch (Exception err) {
+                        JOptionPane.showMessageDialog(frame, "ERR " + err.getMessage());
                     }
                 }
             }
         });
+
     }
 
+    public List<UserCourseDTO> searchUsersAll() {
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPage(1);
+        pageRequest.setMaxPageItem(100);
+        query = new SearchUser();
+        if (txt_maMon_hoc != null && txt_maMon_hoc.getText().length() > 0) {
+            query.setCodeCourse(txt_maMon_hoc.getText());
+        }
+        if (cboxClassesSearch != null && cboxClassesSearch.getSelectedIndex() > 0 && cboxClassesSearch.getSelectedItem().toString().length() > 0) {
+            ClassesDTO classesDTO = this.classes.get(cboxClassesSearch.getSelectedIndex());
+            if (classesDTO != null) {
+                query.setClassId(classesDTO.getId());
+            }
+        }
+        SearchResult<UserCourseDTO> rsSearched = userService.searchAll(query, pageRequest);
+        return rsSearched.getResults();
+    }
+
+
+    public List<UserDTO> searchUsers() {
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPage(1);
+        pageRequest.setMaxPageItem(100);
+        query = new SearchUser();
+        if (txt_maMon_hoc != null && txt_maMon_hoc.getText().length() > 0) {
+            query.setCodeCourse(txt_maMon_hoc.getText());
+        }
+        if (cboxClassesSearch != null && cboxClassesSearch.getSelectedIndex() > 0 && cboxClassesSearch.getSelectedItem().toString().length() > 0) {
+            ClassesDTO classesDTO = this.classes.get(cboxClassesSearch.getSelectedIndex());
+            if (classesDTO != null) {
+                query.setClassId(classesDTO.getId());
+            }
+        }
+        SearchResult<UserDTO> rsSearched = userService.search(query, pageRequest);
+        listUsers = rsSearched.getResults();
+        return listUsers;
+    }
+
+    public List<CourseDTO> searchCourse() {
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPage(1);
+        pageRequest.setMaxPageItem(100);
+        SearchCourse query = new SearchCourse();
+        if (txt_mamh != null && txt_mamh.getText().length() > 0) {
+            query.setName(txt_mamh.getText());
+        }
+        if (cboxClassesMHSearch != null && cboxClassesMHSearch.getSelectedItem().toString().length() > 0) {
+            query.setClassName(cboxClassesMHSearch.getSelectedItem().toString());
+        }
+        SearchResult<CourseDTO> rsSearched = courseService.search(query, pageRequest);
+        return rsSearched.getResults();
+    }
 
     private List<RoleDTO> getRoles() {
         return roleService.findAll();

@@ -67,15 +67,15 @@ public class CoursetableModel extends AbstractTableModel {
         return courses.size();
     }
 
-    public CourseDTO getClassesSelected() {
+    public CourseDTO getCoursesSelected() {
         return coursesSelected;
     }
 
-    public void setClassesSelected(CourseDTO coursesSelected) {
+    public void setCourseSelected(CourseDTO coursesSelected) {
         this.coursesSelected = coursesSelected;
     }
 
-    public void setCategories(List<CourseDTO> courses) {
+    public void setCourses(List<CourseDTO> courses) {
         this.courses = courses;
     }
 

@@ -36,17 +36,19 @@ public class Login {
                     return;
                 }
 
-                if ( userDTO.getUsername().length() > 0) {
+                if (userDTO.getUsername().length() > 0) {
                     if (userDTO.getRoles().size() > 0) {
                         if (adminRole.isSelected() && userDTO.getRoles().get(0).getCode().equalsIgnoreCase("ADMIN")) {
                             Session.userInfo = userDTO;
                             new HomeAdmin();
                             frame.dispose();
+                            frame.setVisible(false);
                         } else if (studentRole.isSelected() && userDTO.getRoles().get(0).getCode().equalsIgnoreCase("USER")) {
                             Session.userInfo = userDTO;
-                            new HomeAdmin();
+                            new StudentForm();
                             frame.dispose();
-                        }  else JOptionPane.showMessageDialog(frame, "Bạn không có quyền truy cập vào ứng dụng");
+                            frame.setVisible(false);
+                        } else JOptionPane.showMessageDialog(frame, "Bạn không có quyền truy cập vào ứng dụng");
                     } else {
                         JOptionPane.showMessageDialog(frame, "Bạn không có quyền truy cập vào ứng dụng");
                     }

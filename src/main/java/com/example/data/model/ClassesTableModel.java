@@ -74,7 +74,7 @@ public class ClassesTableModel extends AbstractTableModel {
         this.categorySelected = categorySelected;
     }
 
-    public void setCategories(List<ClassesDTO> categories) {
+    public void setListClass(List<ClassesDTO> categories) {
         this.categories = categories;
     }
 
