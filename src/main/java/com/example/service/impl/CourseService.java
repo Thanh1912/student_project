@@ -54,10 +54,10 @@ public class CourseService implements ICourseService {
         res.setLastPage(resultSearch.isLastPage());*/
         List<List<Object>> productModels = resultSearch.getResults();
         List<CourseDTO> courseDTOs = new ArrayList<>();
-            CourseDTO userDto= new CourseDTO();
             List<Object> objects = productModels.get(0);
         for (int i = 0; i < objects.size(); i++) {
             Object[] objects2 = (Object[]) objects.get(i);
+            CourseDTO userDto= new CourseDTO();
             try{
                 userDto.setId(new Long(objects2[0]+""));
                 userDto.setCode((String) objects2[1]);

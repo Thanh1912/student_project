@@ -111,34 +111,35 @@ public class UserService implements IUserService {
         SearchResult<UserCourseDTO> res = new SearchResult<>();
         List<Object> resultSearch = userRepository.searchAll(query, pageRequest);
         List<UserCourseDTO> userCourseDTOS = new ArrayList<>();
-        resultSearch.forEach(item -> {
-            Object[] objects = (Object[]) item;
-            UserCourseDTO userCourseDTO =new UserCourseDTO();
-            UserDTO userDTO = new UserDTO();
-           try{
-               userDTO.setId(new Long(objects[0].toString()));
-               userDTO.setUsername((String)StringUtils.checkNull(objects[1]));
-               userDTO.setFullname((String)StringUtils.checkNull(objects[2]));
-               userDTO.setCardId((String)StringUtils.checkNull(objects[3]));
-               userDTO.setMssv((String) StringUtils.checkNull(objects[4]));
-               userDTO.setSex((String)objects[5]);
-               userDTO.setClassId(new Long(objects[6].toString()));
-               userCourseDTO.setUserDTO(userDTO);
-               userCourseDTO.setId(getLong(objects[7]));
-               userCourseDTO.setCourseid(getLong(objects[8]));
-               userCourseDTO.setUserid(getLong( objects[9]));
-               userCourseDTO.setPointHk((Double) objects[10]);
-               userCourseDTO.setPointHkEnd((Double) objects[11]);
-               userCourseDTO.setPointHkAnother((Double) objects[12]);
-               userCourseDTO.setPointHkAnother((Double) objects[13]);
-               userCourseDTO.setStatus((String) objects[14]);
-               userCourseDTO.setStatusPoint((String) objects[15]);
-               if(userDTO.getId()!=null)
-               userCourseDTOS.add(userCourseDTO);
-           }catch (Exception e){
+        for (int i = 0; i < resultSearch.size(); i++) {
+            Object[] objects = (Object[]) resultSearch.get(i);
+            try{
+                UserCourseDTO userCourseDTO =new UserCourseDTO();
+                UserDTO userDTO = new UserDTO();
+                userDTO.setId(new Long(objects[0].toString()));
+                userDTO.setUsername((String)StringUtils.checkNull(objects[1]));
+                userDTO.setFullname((String)StringUtils.checkNull(objects[2]));
+                userDTO.setCardId((String)StringUtils.checkNull(objects[3]));
+                userDTO.setMssv((String) StringUtils.checkNull(objects[4]));
+                userDTO.setSex((String)objects[5]);
+                userDTO.setClassId(new Long(objects[6].toString()));
+                userCourseDTO.setUserDTO(userDTO);
+                userCourseDTO.setCourseid(getLong(objects[7]));
+                userCourseDTO.setUserid(getLong( objects[8]));
+                userCourseDTO.setId(getLong(objects[9]));
+                userCourseDTO.setPointHk((Double) objects[10]);
+                userCourseDTO.setPointHkEnd((Double) objects[11]);
+                userCourseDTO.setPointHkAnother((Double) objects[12]);
+                userCourseDTO.setPointHkAnother((Double) objects[13]);
+                userCourseDTO.setStatus((String) objects[14]);
+                userCourseDTO.setStatusPoint((String) objects[15]);
+                if(userDTO.getId()!=null)
+                    userCourseDTOS.add(userCourseDTO);
+            }catch (Exception e){
 
-           }
-        });
+            }
+        }
+
         res.setResults(userCourseDTOS);
         return res;
     }

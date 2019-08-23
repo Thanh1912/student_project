@@ -46,7 +46,7 @@ public class StudentForm {
     private JComboBox cboxClassesSearch;
     private JTextField txt_maMon_hoc;
     private JButton btn_tk_mh_sv;
-    private JTextField txt_mamh;
+    private JTextField txt_text_mh;
     private JComboBox cboxClassesMHSearch;
     private JTable table_mh;
     private JButton btn_change_pass;
@@ -136,10 +136,10 @@ public class StudentForm {
                 coursetableModel1.setCourseSelected(courseDTO);
                 table_mh.setModel(coursetableModel1);
 
-                UserTableModel userTableModel = (UserTableModel) table_dk_monhoc.getModel();
-                if (userTableModel.getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
+                UserCourseTableModel userTableModel = (UserCourseTableModel) table_dk_monhoc.getModel();
+                if (userTableModel.getUserCourseSelected() != null && coursetableModel1.getCoursesSelected() != null) {
                     txt_name_mh.setText(coursetableModel1.getCoursesSelected().getName() + " - " + coursetableModel1.getCoursesSelected().getCode());
-                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
+                    UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getId(), coursetableModel1.getCoursesSelected().getId());
                     if (userCourseEntity != null) {
                         cb_dk.setSelectedItem(userCourseEntity.getStatus());
                         point_center.setText(checkNull(userCourseEntity.getPointHk()));
@@ -167,10 +167,10 @@ public class StudentForm {
         btn_tk_dkmh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<CourseDTO> userDTOS = searchCourse();
-                CoursetableModel userTableModel = (CoursetableModel) table_mh.getModel();
-                userTableModel.setCourses(userDTOS);
-                userTableModel.refresh();
+                List<UserCourseDTO> userDTOS = searchUsersAll();
+                UserCourseTableModel userCourseTableModel1 = (UserCourseTableModel) table_dk_monhoc.getModel();
+                userCourseTableModel1.setList(userDTOS);
+                userCourseTableModel1.refresh();
             }
         });
         btn_change_pass.addActionListener(new ActionListener() {
@@ -197,13 +197,13 @@ public class StudentForm {
         pageRequest.setPage(1);
         pageRequest.setMaxPageItem(100);
         SearchCourse query = new SearchCourse();
-        if (txt_mamh != null && txt_mamh.getText().length() > 0) {
-            query.setName(txt_mamh.getText());
+        if (txt_text_mh != null && txt_text_mh.getText().length() > 0) {
+            query.setName(txt_text_mh.getText());
         }
-        UserDTO userDTO = UICommonUtils.getAccount(frame);
+       /* UserDTO userDTO = UICommonUtils.getAccount(frame);
         if (userDTO != null) {
             query.setUserId(userDTO.getId());
-        }
+        }*/
         if (cboxClassesMHSearch != null && cboxClassesMHSearch.getSelectedItem() != null && cboxClassesMHSearch.getSelectedItem().toString().length() > 0) {
             query.setClassName(cboxClassesMHSearch.getSelectedItem().toString());
         }
@@ -220,6 +220,7 @@ public class StudentForm {
             query.setCodeCourse(txt_maMon_hoc.getText());
         }
         UserDTO userDTO = UICommonUtils.getAccount(frame);
+        query.setUserId(new Long(3));
         if (userDTO != null) {
             query.setUserId(userDTO.getId());
         }

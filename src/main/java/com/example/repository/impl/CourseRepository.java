@@ -31,11 +31,11 @@ public class CourseRepository extends AbstractRepository<Long, CourseEntity> imp
         sql.append(" INNER JOIN user as user on user_course.userid = user.id ");
         sql.append(" INNER JOIN classes as class on class.id = user.classId ");
         sql.append(" where 1=1 ");
-        if (!StringUtils.isEmpty(query.getName())) {
-            sql.append(" and course.name LIKE '%" + query.getName() + "%'");
+        if (!StringUtils.isEmpty(query.getCode())) {
+            sql.append(" and course.code LIKE '%" + query.getName() + "%'");
         }
         if (!StringUtils.isEmpty(query.getName())) {
-            sql.append(" and course.code LIKE '%" + query.getName() + "%'");
+            sql.append(" and course.name LIKE '%" + query.getName() + "%'");
         }
         if (!StringUtils.isEmpty(query.getClassName())) {
             sql.append(" and class.name =  " + query.getClassName());
@@ -50,7 +50,8 @@ public class CourseRepository extends AbstractRepository<Long, CourseEntity> imp
             Query bquery = session.createSQLQuery(sql.toString());
             bquery.setFirstResult((pageRequest.getPage() - 1) * pageRequest.getLimit());
             bquery.setMaxResults(pageRequest.getLimit());
-            res.setResults(Collections.singletonList((List<Object>) bquery.getResultList()));
+            List<Object> list = (List<Object>) bquery.getResultList();
+            res.setResults(Collections.singletonList(list));
         } catch (HibernateException e) {
             transaction.rollback();
             e.printStackTrace();
