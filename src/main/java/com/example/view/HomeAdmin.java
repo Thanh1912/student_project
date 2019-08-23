@@ -771,14 +771,17 @@ public class HomeAdmin {
             public void actionPerformed(ActionEvent e) {
                 CoursetableModel coursetableModel1 = (CoursetableModel) table_mh.getModel();
                 int index = table_mh.getSelectedRow();
+                if (index <0) {
+                    JOptionPane.showMessageDialog(frame, "Vui long chon mon hoc");
+                }
                 CourseDTO courseDTO = coursetableModel1.getList().get(index);
                 coursetableModel1.setCourseSelected(courseDTO);
                 table_mh.setModel(coursetableModel1);
 
-                UserTableModel userTableModel = (UserTableModel) table_dk_monhoc.getModel();
-                if (userTableModel.getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
+                UserCourseTableModel userTableModel = (UserCourseTableModel) table_dk_monhoc.getModel();
+                if (userTableModel.getUserCourseSelected().getUserDTO() != null && coursetableModel1.getCoursesSelected() != null) {
                     try {
-                        UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
+                        UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
                         Double point_center1 = Double.parseDouble(point_center.getText());
                         Double point_end1 = Double.parseDouble(point_end.getText());
                         Double point_another1 = Double.parseDouble(point_another.getText());
@@ -790,7 +793,10 @@ public class HomeAdmin {
                         userCourseEntity.setPointHk(point_center1);
                         userCourseEntity.setPointHkEnd(point_end1);
                         userCourseEntity.setPointHkAnother(point_another1);
-                        userCourseRepository.update(userCourseEntity);
+                        UserCourseEntity updated = userCourseRepository.update(userCourseEntity);
+                        if (updated !=null) {
+                            JOptionPane.showMessageDialog(frame, "Cap nhat thanh cong");
+                        }
                     } catch (Exception err) {
                         JOptionPane.showMessageDialog(frame, "ERR " + err.getMessage());
                     }
@@ -812,10 +818,11 @@ public class HomeAdmin {
                     try {
                         UserCourseEntity userCourseEntity = courseService.findByUserIdAndCourseId(userTableModel.getUserCourseSelected().getUserDTO().getId(), coursetableModel1.getCoursesSelected().getId());
                         if (userCourseEntity == null) {
-                            userCourseEntity = new UserCourseEntity();
+                           /* userCourseEntity = new UserCourseEntity();
                             userCourseEntity.setUserEntity(userConverter.convertToEntity(userTableModel.getUserCourseSelected().getUserDTO()));
                             userCourseEntity.setCourseEntity(courseConverter.convertToEntity(coursetableModel1.getCoursesSelected()));
-                            userCourseRepository.save(userCourseEntity);
+                            userCourseRepository.update(userCourseEntity);*/
+                            JOptionPane.showMessageDialog(frame, "Khong the cap nhat,vi Khong tim thay trong db");
                         } else {
                             userCourseEntity.setStatus(cb_dk.getSelectedItem().toString());
                             IUserCourseRepository userCourseRepository = new UserCourseRepository();
