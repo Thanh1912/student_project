@@ -18,10 +18,8 @@ import com.example.repository.impl.ClassRepository;
 import com.example.repository.impl.CourseRepository;
 import com.example.repository.impl.UserCourseRepository;
 import com.example.repository.impl.UserRepository;
-import com.example.service.impl.ClassesService;
-import com.example.service.impl.CourseService;
-import com.example.service.impl.RoleService;
-import com.example.service.impl.UserService;
+import com.example.service.IUserCourseService;
+import com.example.service.impl.*;
 import com.example.utils.UICommonUtils;
 import com.opencsv.CSVReader;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -574,6 +572,7 @@ public class HomeAdmin {
             }
         });
         IUserCourseRepository userCourseRepository = new UserCourseRepository();
+        IUserCourseService userCourseService = new UserCourseService(userCourseRepository);
 
         chooseFileBtnBangDiem.addActionListener(new ActionListener() {
             @Override
@@ -601,31 +600,38 @@ public class HomeAdmin {
                             if (classesEntities != null && classesEntities.size() > 0) {
                                 classId = classesEntities.get(0).getId();
                                 Long courseId = courses.get(0).getId();
-                                List<Object> userCourseEntity = userCourseRepository.findByClassIdAndCourseId(classId, courseId);
+                                List<UserCourseEntity> userCourseEntity = userCourseService.findByClassIdAndCourseId(classId, courseId);
+                                String errsMessage = "";
                                 for (int i = 1; i < lines.size(); i++) {
                                     for (int j = 0; j < userCourseEntity.size(); j++) {
-                                        Object[] objects = (Object[]) userCourseEntity.get(i);
+                                        UserCourseEntity userCourseEntity1 = userCourseEntity.get(j);
                                         String line = Arrays.toString(lines.get(i));
                                         line = line.substring(1, line.length() - 1);
                                         String[] listColumnInLine = line.split("-");
                                         if (listColumnInLine.length >= 6) {
-                                          /*  if (userCourseEntity1.getUserEntity().getMssv().equals(listColumnInLine[0])) {
-                                                Double point_center1 = Double.parseDouble(listColumnInLine[2]);
-                                                Double point_end1 = Double.parseDouble(listColumnInLine[3]);
-                                                Double point_another1 = Double.parseDouble(listColumnInLine[4]);
-                                                Double point_tb = Double.parseDouble(listColumnInLine[5]);
+                                            if (userCourseEntity1.getUserEntity().getMssv() != null && listColumnInLine[0] != null) {
+                                                if (userCourseEntity1.getUserEntity().getMssv().equalsIgnoreCase(listColumnInLine[0])) {
+                                                    Double point_center1 = Double.parseDouble(listColumnInLine[2]);
+                                                    Double point_end1 = Double.parseDouble(listColumnInLine[3]);
+                                                    Double point_another1 = Double.parseDouble(listColumnInLine[4]);
+                                                    Double point_tb = Double.parseDouble(listColumnInLine[5]);
 
-                                                userCourseEntity1.setPointHk(point_center1);
-                                                userCourseEntity1.setPointHkEnd(point_end1);
-                                                userCourseEntity1.setPointHkAnother(point_another1);
-                                                userCourseEntity1.setPoint(point_tb);
-                                                userCourseEntities.add(userCourseEntity1);
-                                            }*/
+                                                    userCourseEntity1.setPointHk(point_center1);
+                                                    userCourseEntity1.setPointHkEnd(point_end1);
+                                                    userCourseEntity1.setPointHkAnother(point_another1);
+                                                    userCourseEntity1.setPoint(point_tb);
+                                                    userCourseEntity1.setStatusPoint(point_tb >= 5 ? "DAU" : "ROT");
+                                                    userCourseEntities.add(userCourseEntity1);
+                                                }
+                                            }
                                         }
                                     }
                                 }
                                 UserCourseImportTableModel coursetableModel = new UserCourseImportTableModel(userCourseEntities);
                                 tableBangDiem.setModel(coursetableModel);
+                                if (errsMessage.length() > 0) {
+                                    JOptionPane.showMessageDialog(frame, errsMessage);
+                                }
                             } else {
                                 JOptionPane.showMessageDialog(frame, "Khong tim thay lop " + line1);
                             }
@@ -644,32 +650,17 @@ public class HomeAdmin {
         addButtonBangDiem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CourseConverter courseConverter = new CourseConverter();
-                UserConverter userConverter = new UserConverter();
-                UserCourseImportTableModel userCourseImportTableModel = (UserCourseImportTableModel) tableTKB.getModel();
+                UserCourseImportTableModel userCourseImportTableModel = (UserCourseImportTableModel) tableBangDiem.getModel();
                 List<UserCourseEntity> userCourseEntities = userCourseImportTableModel.getList();
-                List<CourseEntity> courseEntities = new ArrayList<>();
                 List<String> statusInsert = new ArrayList<>();
                 userCourseEntities.forEach(item -> {
                     UserCourseEntity userCourseEntity = userCourseRepository.update(item);
                     if (userCourseEntity != null) {
-                        statusInsert.add("inserted MSSV: " + item.getUserEntity().getMssv());
+                        statusInsert.add("Cap nhat diem  MSSV: " + item.getUserEntity().getMssv());
                     } else {
-                        statusInsert.add("Fail inserted MSSV: " + item.getUserEntity().getMssv());
+                        statusInsert.add("Fail cap nhat diem MSSV: " + item.getUserEntity().getMssv());
                     }
                 });
-               /* if (classId > 0 && courseEntities.size() > 0) {
-                    List<UserEntity> userEntities = userRepository.findByProperty("classId", classId);
-                    for (int i = 0; i < userEntities.size(); i++) {
-                        UserEntity userEntity = userEntities.get(i);
-                        UserCourseEntity userCourseEntity = new UserCourseEntity();
-                        courseEntities.forEach(course -> {
-                            userCourseEntity.setCourseEntity(course);
-                            userCourseEntity.setUserEntity(userEntity);
-                            userRepository.update(userEntity);
-                        });
-                    }
-                }*/
                 JOptionPane.showMessageDialog(frame, String.join(" \\n ", statusInsert));
             }
         });
@@ -773,6 +764,10 @@ public class HomeAdmin {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ThongKe();
+                List<UserCourseDTO> userDTOS = searchUsersAll();
+                UserCourseTableModel userCourseTableModel1 = (UserCourseTableModel) table_dk_monhoc.getModel();
+                userCourseTableModel1.setList(userDTOS);
+                userCourseTableModel1.refresh();
             }
         });
 
