@@ -114,6 +114,9 @@ public class HomeAdmin {
     private JPanel import_sv;
     private JTextField txt_mamh;
     private JButton btn_tk;
+    private JLabel txt_sl;
+    private JLabel phantram_dau;
+    private JLabel phantram_rot;
     private JFrame frame;
     private List<UserDTO> users;
     private List<ClassesDTO> classes;
@@ -759,10 +762,17 @@ public class HomeAdmin {
         btn_tk_dkmh.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                List<CourseDTO> userDTOS = searchCourse();
-                CoursetableModel userTableModel = (CoursetableModel) table_mh.getModel();
-                userTableModel.setCourses(userDTOS);
-                userTableModel.refresh();
+                List<UserCourseDTO> userDTOS = searchUsersAll();
+                UserCourseTableModel userCourseTableModel1 = (UserCourseTableModel) table_dk_monhoc.getModel();
+                userCourseTableModel1.setList(userDTOS);
+                userCourseTableModel1.refresh();
+            }
+        });
+
+        btn_tk.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ThongKe();
             }
         });
 
@@ -771,7 +781,7 @@ public class HomeAdmin {
             public void actionPerformed(ActionEvent e) {
                 CoursetableModel coursetableModel1 = (CoursetableModel) table_mh.getModel();
                 int index = table_mh.getSelectedRow();
-                if (index <0) {
+                if (index < 0) {
                     JOptionPane.showMessageDialog(frame, "Vui long chon mon hoc");
                 }
                 CourseDTO courseDTO = coursetableModel1.getList().get(index);
@@ -794,7 +804,7 @@ public class HomeAdmin {
                         userCourseEntity.setPointHkEnd(point_end1);
                         userCourseEntity.setPointHkAnother(point_another1);
                         UserCourseEntity updated = userCourseRepository.update(userCourseEntity);
-                        if (updated !=null) {
+                        if (updated != null) {
                             JOptionPane.showMessageDialog(frame, "Cap nhat thanh cong");
                         }
                     } catch (Exception err) {
@@ -879,6 +889,44 @@ public class HomeAdmin {
         listUsers = rsSearched.getResults();
         return listUsers;
     }
+
+    public void ThongKe() {
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPage(1);
+        pageRequest.setMaxPageItem(100);
+        query = new SearchUser();
+        if (txt_maMon_hoc == null || txt_maMon_hoc.getText().length() == 0) {
+            JOptionPane.showMessageDialog(frame, "Vui Long nhap mon hoc ");
+        } else {
+            query.setCodeCourse(txt_maMon_hoc.getText());
+            if (cboxClassesSearch != null && cboxClassesSearch.getSelectedIndex() > 0 && cboxClassesSearch.getSelectedItem().toString().length() > 0) {
+                ClassesDTO classesDTO = this.classes.get(cboxClassesSearch.getSelectedIndex());
+                if (classesDTO != null) {
+                    query.setClassId(classesDTO.getId());
+                }
+                SearchResult<UserCourseDTO> rsSearched = userService.searchAll(query, pageRequest);
+                int sl = rsSearched.getResults().size();
+                Double pt_dau = new Double(0);
+                Double pt_rot = new Double(0);
+                int sl_dau = 0;
+                int sl_rot = 0;
+                for (int i = 0; i < rsSearched.getResults().size(); i++) {
+                    UserCourseDTO userCourseDTO = rsSearched.getResults().get(i);
+                    if (userCourseDTO.getStatusPoint() != null && userCourseDTO.getStatusPoint().equals("DAU")) {
+                        sl_dau++;
+                    } else {
+                        sl_rot++;
+                    }
+                }
+                txt_sl.setText(sl + "");
+                phantram_dau.setText((sl_dau / sl) + "");
+                phantram_rot.setText((pt_rot / sl) + "");
+            } else {
+                JOptionPane.showMessageDialog(frame, "Vui Long Lop");
+            }
+        }
+    }
+
 
     public List<CourseDTO> searchCourse() {
         PageRequest pageRequest = new PageRequest();

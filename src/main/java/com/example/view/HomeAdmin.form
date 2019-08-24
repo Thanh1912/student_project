@@ -986,7 +986,7 @@
                                   <text value="So Luong: "/>
                                 </properties>
                               </component>
-                              <component id="d6e0b" class="javax.swing.JLabel">
+                              <component id="d6e0b" class="javax.swing.JLabel" binding="txt_sl">
                                 <constraints>
                                   <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                 </constraints>
@@ -1010,7 +1010,7 @@
                                   <text value="Phan tram rot"/>
                                 </properties>
                               </component>
-                              <component id="f1efb" class="javax.swing.JLabel">
+                              <component id="f1efb" class="javax.swing.JLabel" binding="phantram_dau">
                                 <constraints>
                                   <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                 </constraints>
@@ -1018,7 +1018,7 @@
                                   <text value="..."/>
                                 </properties>
                               </component>
-                              <component id="33dcf" class="javax.swing.JLabel">
+                              <component id="33dcf" class="javax.swing.JLabel" binding="phantram_rot">
                                 <constraints>
                                   <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                                 </constraints>
