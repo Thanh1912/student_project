@@ -11,7 +11,7 @@ public class UserCourseEntity implements Serializable {
 	private static final long serialVersionUID = -1969294509019205387L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_course_id")
 	private Long id;
 	@ManyToOne(cascade = CascadeType.ALL)

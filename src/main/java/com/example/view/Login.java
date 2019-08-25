@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Login {
     private JButton LoginButton;
@@ -22,6 +24,7 @@ public class Login {
     UserService userService = new UserService();
 
     public Login() {
+
         LoginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameTextField.getText();

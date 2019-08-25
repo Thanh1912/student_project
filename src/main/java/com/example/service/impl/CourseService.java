@@ -79,9 +79,13 @@ public class CourseService implements ICourseService {
         CourseEntity courseEntity = courseConverter.convertToEntity(classesDTO);
         courseEntity.setModifiedDate(Timestamp.from(new Date().toInstant()));
         courseEntity.setCreatedDate(Timestamp.from(new Date().toInstant()));
-        CourseEntity classesEntity = iCourseRepository.save(courseEntity);
-        if (classesEntity != null) {
-            return courseConverter.convertToDto(classesEntity);
+        try{
+            CourseEntity classesEntity = iCourseRepository.saveOrUpdate(courseEntity);
+            if (classesEntity != null) {
+                return courseConverter.convertToDto(classesEntity);
+            }
+        }catch (Exception e){
+            return null;
         }
         return null;
     }

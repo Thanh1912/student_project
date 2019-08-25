@@ -86,9 +86,13 @@ public class UserService implements IUserService {
         UserEntity userModel = userConverter.convertToEntity(userDTO);
         userModel.setModifiedDate(Timestamp.from(new Date().toInstant()));
         userModel.setCreatedDate(Timestamp.from(new Date().toInstant()));
-        UserEntity userInserted = userRepository.update(userModel);
-        if (userInserted != null) {
-            return userConverter.convertToDto(userInserted);
+        try{
+            UserEntity userInserted = userRepository.saveOrUpdate(userModel);
+            if (userInserted != null) {
+                return userConverter.convertToDto(userInserted);
+            }
+        }catch (Exception e){
+            return null;
         }
         return null;
     }

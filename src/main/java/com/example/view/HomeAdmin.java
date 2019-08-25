@@ -235,7 +235,7 @@ public class HomeAdmin {
                     else
                         statusInsert.add("Fail inserted: " + item.getMssv());
                 });
-                JOptionPane.showMessageDialog(frame, String.join(" \\n ", statusInsert));
+                JOptionPane.showMessageDialog(frame, String.join(" //n ", statusInsert));
             }
         });
 
@@ -286,6 +286,7 @@ public class HomeAdmin {
                                     users1.add(userDTO);
                                 } else {
                                     JOptionPane.showMessageDialog(frame, "Format file sai" + line1);
+                                    break;
                                 }
                             }
                             UserTableImportModel userTableModel1 = new UserTableImportModel(users1);
@@ -357,7 +358,7 @@ public class HomeAdmin {
                 userDTO.setUsername(FieldName.getText());
                 userDTO.setSex(FieldGT.getSelectedItem().toString());
                 classesDTOList.forEach(item -> {
-                    if (item.getName().equals(IClass.getSelectedItem())) {
+                    if (item.getName().equals(comboBoxClassEdit.getSelectedItem())) {
                         userDTO.setClassId(item.getId());
                     }
                 });
@@ -365,6 +366,11 @@ public class HomeAdmin {
                 userDTO.setCardId(FieldCMND.getText());
                 userDTO.setModifiedDate(getCurrentTimeStamp());
                 UserDTO updated = userService.insert(userDTO);
+                if (userDTO.getClassId() == null || userDTO.getClassId() == 0) {
+                    JOptionPane.showMessageDialog(frame, "Vui Long cho lop hoc");
+                    return;
+                }
+
                 if (updated != null) {
                     JOptionPane.showMessageDialog(frame, "Cập nhật thành công");
                     tableModel.setList(getUsers());
@@ -504,7 +510,7 @@ public class HomeAdmin {
                     CourseDTO courseDTO = courseService.save(item);
                     if (courseDTO != null) {
                         courseEntities.add(courseRepository.findOneByProperty("code", courseDTO.getCode()));
-                        statusInsert.add("inserted: " + item.getCode());
+                        statusInsert.add("inserted course: " + item.getCode());
                     } else {
                         statusInsert.add("Fail inserted: " + item.getCode());
                     }
@@ -514,10 +520,16 @@ public class HomeAdmin {
                     for (int i = 0; i < userEntities.size(); i++) {
                         UserEntity userEntity = userEntities.get(i);
                         UserCourseEntity userCourseEntity = new UserCourseEntity();
+                        UserCourseRepository userCourseRepository = new UserCourseRepository();
                         courseEntities.forEach(course -> {
                             userCourseEntity.setCourseEntity(course);
                             userCourseEntity.setUserEntity(userEntity);
-                            userRepository.update(userEntity);
+                            UserCourseEntity updatedDKMH = userCourseRepository.update(userCourseEntity);
+                            if (updatedDKMH != null) {
+                                statusInsert.add("Fail inserted: " + userEntity.getMssv());
+                            } else {
+                                statusInsert.add("Fail inserted: " + userEntity.getMssv());
+                            }
                         });
                     }
                 }
@@ -744,7 +756,7 @@ public class HomeAdmin {
             @Override
             public void actionPerformed(ActionEvent e) {
                 List<CourseDTO> courseDTOS1 = searchCourse();
-                CoursetableModel tableModel = (CoursetableModel) table_dk_monhoc.getModel();
+                CoursetableModel tableModel = (CoursetableModel) table_mh.getModel();
                 tableModel.setCourses(courseDTOS1);
                 tableModel.refresh();
             }

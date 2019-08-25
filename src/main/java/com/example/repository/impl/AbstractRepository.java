@@ -89,6 +89,25 @@ public class AbstractRepository<ID extends Serializable, T> implements GenericRe
 		return result;
 	}
 
+
+	@Override
+	public T saveOrUpdate(T entity) {
+		Session session = HibernateUtil.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+		try {
+			session.saveOrUpdate(entity);
+			transaction.commit();
+		} catch (HibernateException e) {
+			transaction.rollback();
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+			throw e;
+		} finally {
+			session.close();
+		}
+		return entity;
+	}
+
 	@Override
 	public T save(T entity) {
 		Session session = HibernateUtil.getSessionFactory().openSession();

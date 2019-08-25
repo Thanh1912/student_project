@@ -57,7 +57,7 @@ public class StudentForm {
 
     public StudentForm() {
         // init frame admin
-        frame = new JFrame("Quản trị hệ thống");
+        frame = new JFrame("Sinh Vien");
         frame.setContentPane(homeAdmin);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
