@@ -28,7 +28,6 @@ public class StudentForm {
     private JButton exitButton;
     private JLabel welcomeNameLabel;
     private JTabbedPane tabbedPane1;
-    private JPanel ql_sv;
     private JTable table_dk_monhoc;
     private JTextField txt_dk_fullname;
     private JComboBox cb_dk;
@@ -82,7 +81,6 @@ public class StudentForm {
         first.setName("");
         classesDTOList.add(0, first);
         classesDTOList.stream().forEach(item -> {
-            cboxClassesSearch.addItem(item.getName());
             cboxClassesMHSearch.addItem(item.getName());
         });
 
@@ -213,15 +211,9 @@ public class StudentForm {
             query.setCodeCourse(txt_maMon_hoc.getText());
         }
         UserDTO userDTO = UICommonUtils.getAccount(frame);
-        query.setUserId(new Long(3));
         if (userDTO != null) {
             query.setUserId(userDTO.getId());
-        }
-        if (cboxClassesSearch != null && cboxClassesSearch.getSelectedIndex() > 0 && cboxClassesSearch.getSelectedItem().toString().length() > 0) {
-            ClassesDTO classesDTO = this.classes.get(cboxClassesSearch.getSelectedIndex());
-            if (classesDTO != null) {
-                query.setClassId(classesDTO.getId());
-            }
+            query.setClassId(userDTO.getClassId());
         }
         SearchResult<UserCourseDTO> rsSearched = userService.searchAll(query, pageRequest);
         return rsSearched.getResults();
