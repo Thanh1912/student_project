@@ -507,6 +507,10 @@ public class HomeAdmin {
                 List<CourseEntity> courseEntities = new ArrayList<>();
                 List<String> statusInsert = new ArrayList<>();
                 courseDTOS.forEach(item -> {
+                    CourseEntity courseEntity = courseRepository.findOneByProperty("code", item.getCode());
+                    if(courseEntity!=null){
+                        item.setId(courseEntity.getId());
+                    }
                     CourseDTO courseDTO = courseService.save(item);
                     if (courseDTO != null) {
                         courseEntities.add(courseRepository.findOneByProperty("code", courseDTO.getCode()));
@@ -524,6 +528,7 @@ public class HomeAdmin {
                         courseEntities.forEach(course -> {
                             userCourseEntity.setCourseEntity(course);
                             userCourseEntity.setUserEntity(userEntity);
+                            userCourseEntity.setStatus("");
                             UserCourseEntity updatedDKMH = userCourseRepository.update(userCourseEntity);
                             if (updatedDKMH != null) {
                                 statusInsert.add("Fail inserted: " + userEntity.getMssv());
@@ -810,6 +815,7 @@ public class HomeAdmin {
                         userCourseEntity.setPointHk(point_center1);
                         userCourseEntity.setPointHkEnd(point_end1);
                         userCourseEntity.setPointHkAnother(point_another1);
+                        userCourseEntity.setPoint(total);
                         UserCourseEntity updated = userCourseRepository.update(userCourseEntity);
                         if (updated != null) {
                             JOptionPane.showMessageDialog(frame, "Cap nhat thanh cong");
@@ -827,6 +833,9 @@ public class HomeAdmin {
             public void actionPerformed(ActionEvent e) {
                 CoursetableModel coursetableModel1 = (CoursetableModel) table_mh.getModel();
                 int index = table_mh.getSelectedRow();
+                if(index<0){
+                    JOptionPane.showMessageDialog(frame, "Chon mon hoc");
+                }
                 CourseDTO courseDTO = coursetableModel1.getList().get(index);
                 coursetableModel1.setCourseSelected(courseDTO);
                 table_mh.setModel(coursetableModel1);
@@ -913,8 +922,6 @@ public class HomeAdmin {
                 }
                 SearchResult<UserCourseDTO> rsSearched = userService.searchAll(query, pageRequest);
                 int sl = rsSearched.getResults().size();
-                Double pt_dau = new Double(0);
-                Double pt_rot = new Double(0);
                 int sl_dau = 0;
                 int sl_rot = 0;
                 for (int i = 0; i < rsSearched.getResults().size(); i++) {
@@ -926,8 +933,10 @@ public class HomeAdmin {
                     }
                 }
                 txt_sl.setText(sl + "");
-                phantram_dau.setText((sl_dau / sl) + "");
-                phantram_rot.setText((pt_rot / sl) + "");
+                Double pt_dau = new Double(sl_dau )/ new Double(sl);
+                Double pt_rot = new Double(sl_rot )/new Double(sl);
+                phantram_dau.setText(pt_dau * 100 + " %");
+                phantram_rot.setText(pt_rot * 100 + " % ");
             } else {
                 JOptionPane.showMessageDialog(frame, "Vui Long Lop");
             }

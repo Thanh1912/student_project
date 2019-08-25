@@ -78,7 +78,7 @@
         </constraints>
         <properties>
           <selected value="true"/>
-          <text value="Admin"/>
+          <text value="Giáo vụ"/>
         </properties>
       </component>
       <component id="a3ca9" class="javax.swing.JPasswordField" binding="passwordTextField">

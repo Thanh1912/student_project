@@ -13,7 +13,7 @@ public class UserCourseTableModel extends AbstractTableModel {
     private UserCourseDTO coursesSelected;
 
     private final String[] columnNames = new String[]{
-            "STT", "MSSV", "họ và tên", "Giới tính", "CMND", "DIEM 1", "DIEM 2", "DIEM KHAC", "TRANG THAI"
+            "STT", "MSSV", "họ và tên", "Giới tính", "CMND", "DIEM 1", "DIEM 2", "DIEM KHAC", "DIEM TB", "TRANG THAI"
     };
 
     public UserCourseTableModel(List<UserCourseDTO> userCourseDTOS) {
@@ -42,7 +42,7 @@ public class UserCourseTableModel extends AbstractTableModel {
         if (0 == columnIndex) {
             return row.getId();
         } else if (1 == columnIndex) {
-            return "";//row.getUserDTO().getMssv()
+            return row.getUserDTO().getMssv();
         } else if (2 == columnIndex) {
             return row.getUserDTO().getFullname();
         } else if (3 == columnIndex) {
@@ -55,7 +55,9 @@ public class UserCourseTableModel extends AbstractTableModel {
             return row.getPointHkEnd();
         } else if (7 == columnIndex) {
             return row.getPointHkAnother();
-        } else if (8 == columnIndex) {
+        }  else if (8 == columnIndex) {
+            return row.getPoint();
+        }else if (9 == columnIndex) {
             return row.getStatusPoint();
         }
         return null;

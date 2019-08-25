@@ -40,9 +40,9 @@ public class UICommonUtils {
           UserDTO user = (UserDTO) Session.userInfo;
           welcomeNameLabel.setText(user.getUsername());
       }catch (Exception e){
-          /*frame.dispose();
+          frame.dispose();
           frame.setVisible(false);
-          new Login();*/
+          new Login();
       }
     }
 
