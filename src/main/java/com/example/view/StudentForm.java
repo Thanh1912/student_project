@@ -4,12 +4,15 @@ import com.example.constant.SystemConstant;
 import com.example.data.model.CoursetableModel;
 import com.example.data.model.UserCourseTableModel;
 import com.example.dto.*;
+import com.example.entity.ClassesEntity;
 import com.example.entity.UserCourseEntity;
+import com.example.entity.UserEntity;
 import com.example.paging.PageRequest;
 import com.example.paging.SearchResult;
 import com.example.repository.IClassesRepository;
 import com.example.repository.impl.ClassRepository;
 import com.example.repository.impl.CourseRepository;
+import com.example.repository.impl.UserRepository;
 import com.example.service.impl.ClassesService;
 import com.example.service.impl.CourseService;
 import com.example.service.impl.UserService;
@@ -20,6 +23,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,6 +49,7 @@ public class StudentForm {
     private JTable table_mh;
     private JButton btn_change_pass;
     private JTextField txt_code;
+    private JLabel txt_class;
     private JFrame frame;
     private List<ClassesDTO> classes;
     private IClassesRepository iClassesRepository = new ClassRepository();
@@ -67,6 +72,13 @@ public class StudentForm {
         UICommonUtils.LoadAccount(welcomeNameLabel, frame);
         this.classes = classesService.findAll();
         FormHandle();
+        UserDTO account = UICommonUtils.getAccount(frame);
+        ClassRepository classRepository =new ClassRepository();
+        if(account != null){
+            ClassesEntity classesEntity = classRepository.findById(account.getClassId());
+            if(classesEntity!=null)
+            txt_class.setText(classesEntity.getName());
+        }
     }
 
     public void FormHandle() {
@@ -85,7 +97,7 @@ public class StudentForm {
         });
 
 
-        List<UserCourseDTO> courseUserDTOS = searchUsersAll();
+        List<UserCourseDTO> courseUserDTOS = new ArrayList<>();
         UserCourseTableModel userCourseTableModel = new UserCourseTableModel(courseUserDTOS);
         table_dk_monhoc.setModel(userCourseTableModel);
         table_dk_monhoc.addMouseListener(new MouseAdapter() {

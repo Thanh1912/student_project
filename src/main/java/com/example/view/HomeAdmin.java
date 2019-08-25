@@ -500,8 +500,6 @@ public class HomeAdmin {
         addTKBButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CourseConverter courseConverter = new CourseConverter();
-                UserConverter userConverter = new UserConverter();
                 CoursetableModel tableModel = (CoursetableModel) tableTKB.getModel();
                 List<CourseDTO> courseDTOS = tableModel.getList();
                 List<CourseEntity> courseEntities = new ArrayList<>();

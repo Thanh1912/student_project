@@ -49,6 +49,10 @@ public class UserRepository extends AbstractRepository<Long, UserEntity> impleme
         if (query.getCodeCourse() != null && query.getCodeCourse().length() >= 0) {
             sql.append(" and course.code ='" + query.getCodeCourse() + "'");
         }
+
+        if (query.getUserId() != null && query.getClassId() > 0) {
+            sql.append(" and user_course.userid ='" + query.getUserId() + "'");
+        }
 //        sql.append(" limit " + (pageRequest.getPage() - 1) * pageRequest.getLimit() + ", " + pageRequest.getLimit());
 
         Session session = HibernateUtil.getSessionFactory().openSession();
